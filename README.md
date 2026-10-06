@@ -1,6 +1,6 @@
 # Symcon_CI
 
-Zentrale Prüfung für eigene IP-Symcon-Module. Ein Skript, das lokal vor dem Commit und in GitHub Actions identisch läuft, plus ein wiederverwendbarer Workflow, den jedes Modul mit einer Zeile aufruft. Die Module selbst enthalten nur `.style` und `tests`. Änderungen an der Prüfung passieren hier an einer Stelle.
+Zentrale Prüfung für eigene IP-Symcon-Module. Ein Skript, das lokal vor dem Commit und in GitHub Actions identisch läuft, plus ein wiederverwendbarer Workflow, den jedes Modul mit einer Zeile aufruft. Die Module selbst enthalten nur `.style` und, falls gewünscht, `tests`. Änderungen an der Prüfung passieren hier an einer Stelle.
 
 ## Was geprüft wird
 
@@ -12,7 +12,7 @@ Zentrale Prüfung für eigene IP-Symcon-Module. Ein Skript, das lokal vor dem Co
 | JSON-Syntax | alle `*.json` müssen gültiges JSON sein |
 | StylePHP json-check | `php .style/json-check.php` |
 | php-cs-fixer | Prüfmodus mit `.style/.php-cs-fixer.php` (php-cs-fixer v3, `--allow-risky=yes`, `PHP_CS_FIXER_IGNORE_ENV=1`) |
-| PHPUnit | wenn `tests/` existiert: mit `phpunit.xml` (bzw. `tests/phpunit.xml`), sonst mit `tests/bootstrap.php` |
+| PHPUnit (optional) | nur wenn `tests/` existiert: mit `phpunit.xml` (bzw. `tests/phpunit.xml`), sonst mit `tests/bootstrap.php`. Ohne Tests: "übersprungen", kein Fehler |
 
 Ausgeschlossen sind `.git`, `.style`, `.ci`, `vendor`, `node_modules` und `tests/stubs`. Übersprungene Schritte werden immer angezeigt. Mit `--strict` zählen sie als Fehler. Mit `--only=style` laufen nur JSON-Syntax, json-check und php-cs-fixer (Workflow `style.yml`), mit `--only=tests` nur PHP-Syntax und PHPUnit (Workflow `tests.yml`). Ohne `--only` läuft alles.
 
@@ -21,7 +21,7 @@ Ausgeschlossen sind `.git`, `.style`, `.ci`, `vendor`, `node_modules` und `tests
 Nur das:
 
 - `.style` als Git-Submodul von `https://github.com/symcon/StylePHP`
-- `tests/` mit den Tests, `bootstrap.php` (und optional `phpunit.xml`) und `tests/stubs` als Git-Submodul von `https://github.com/symcon/SymconStubs`
+- optional `tests/` mit den Tests, `bootstrap.php` (und optional `phpunit.xml`) und `tests/stubs` als Git-Submodul von `https://github.com/symcon/SymconStubs`
 - `.github/workflows/style.yml` und `.github/workflows/tests.yml`: je ein kurzer Aufruf des zentralen Workflows (Vorlagen `templates/module-style.yml` und `templates/module-tests.yml`, zeigen auf `Schnittcher/Symcon_CI@v1`)
 
 Keine `composer.json`, kein `vendor/` und kein Submodul von `Symcon_CI` im Modul.
