@@ -179,7 +179,7 @@ if ($runStyle) {
         record($results, 'php-cs-fixer', STATUS_SKIP, 'nicht gefunden (php-cs-fixer-v3.phar neben dem PHP-Ordner, im Modul oder Umgebungsvariable PHP_CS_FIXER)');
     } else {
         [$code, $output] = run(
-            php(escapeshellarg($fixer) . ' fix --config=' . escapeshellarg($config) . ' --dry-run --diff --allow-risky=yes -v'),
+            php(escapeshellarg($fixer) . ' fix --config=' . escapeshellarg($config) . ' --dry-run --diff --allow-risky=yes --using-cache=no -v'),
             ['PHP_CS_FIXER_IGNORE_ENV' => '1']
         );
         record($results, 'php-cs-fixer', $code === 0 ? STATUS_OK : STATUS_FAIL, $code === 0 ? '' : $output);
