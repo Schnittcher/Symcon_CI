@@ -1,7 +1,7 @@
-name: Symcon module check
+name: Symcon module style
 
-# Wiederverwendbarer Workflow. Module rufen ihn mit einer Zeile auf (siehe templates/module-workflow.yml).
-# Die Prüfung ist dieselbe wie lokal: scripts/check.php aus diesem Repository.
+# Wiederverwendbarer Workflow für die Stilprüfung. Module rufen ihn mit einer Zeile auf
+# (siehe templates/module-style.yml). Die Prüfung ist dieselbe wie lokal: scripts/check.php --only=style.
 
 on:
   workflow_call:
@@ -14,19 +14,15 @@ on:
         description: Tag oder Branch dieses Repositories, aus dem scripts/check.php geladen wird
         type: string
         default: v1
-      strict:
-        description: Übersprungene Prüfungen als Fehler werten
-        type: boolean
-        default: false
 
 permissions:
   contents: read
 
 jobs:
-  check:
+  style:
     runs-on: ubuntu-latest
     steps:
-      - name: Modul auschecken (mit Submodulen .style und tests/stubs)
+      - name: Modul auschecken (mit Submodul .style)
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -42,15 +38,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ inputs.php-version }}
-          tools: composer
-
-      - name: Composer-Abhängigkeiten installieren
-        if: hashFiles('composer.json') != ''
-        run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: php-cs-fixer v3 laden
         run: |
           wget -q https://cs.symfony.com/download/php-cs-fixer-v3.phar -O php-cs-fixer-v3.phar
 
-      - name: Prüfen
-        run: php .ci/scripts/check.php ${{ inputs.strict && '--strict' || '' }}
+      - name: Stil prüfen
+        run: php .ci/scripts/check.php --only=style

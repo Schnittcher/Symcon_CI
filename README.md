@@ -1,10 +1,10 @@
 # Symcon_CI
 
-Zentrale Prüfung für eigene IP-Symcon-Module. Ein Skript, das lokal vor dem Commit und in GitHub Actions identisch läuft, plus ein wiederverwendbarer Workflow, den jedes Modul mit einer Zeile aufruft. Änderungen an der Prüfung passieren hier an einer Stelle.
+Zentrale Prüfung für eigene IP-Symcon-Module. Ein Skript, das lokal vor dem Commit und in GitHub Actions identisch läuft, plus ein wiederverwendbarer Workflow, den jedes Modul mit einer Zeile aufruft. Die Module selbst enthalten nur `.style` und `tests`. Änderungen an der Prüfung passieren hier an einer Stelle.
 
 ## Was geprüft wird
 
-`scripts/check.php` führt im Repository-Wurzelverzeichnis des Moduls nacheinander aus:
+`scripts/check.php` führt im Wurzelverzeichnis des Moduls nacheinander aus:
 
 | Schritt | Inhalt |
 | --- | --- |
@@ -12,23 +12,35 @@ Zentrale Prüfung für eigene IP-Symcon-Module. Ein Skript, das lokal vor dem Co
 | JSON-Syntax | alle `*.json` müssen gültiges JSON sein |
 | StylePHP json-check | `php .style/json-check.php` |
 | php-cs-fixer | Prüfmodus mit `.style/.php-cs-fixer.php` (php-cs-fixer v3, `--allow-risky=yes`, `PHP_CS_FIXER_IGNORE_ENV=1`) |
-| PHPUnit | `vendor/bin/phpunit`, wenn `tests/` existiert |
+| PHPUnit | wenn `tests/` existiert: mit `phpunit.xml` (bzw. `tests/phpunit.xml`), sonst mit `tests/bootstrap.php` |
 
-Ausgeschlossen sind `.git`, `.style`, `.ci`, `vendor`, `node_modules` und `tests/stubs`. Übersprungene Schritte werden immer angezeigt. Mit `--strict` zählen sie als Fehler, mit `--skip-style` entfallen json-check und php-cs-fixer.
+Ausgeschlossen sind `.git`, `.style`, `.ci`, `vendor`, `node_modules` und `tests/stubs`. Übersprungene Schritte werden immer angezeigt. Mit `--strict` zählen sie als Fehler. Mit `--only=style` laufen nur JSON-Syntax, json-check und php-cs-fixer (Workflow `style.yml`), mit `--only=tests` nur PHP-Syntax und PHPUnit (Workflow `tests.yml`). Ohne `--only` läuft alles.
 
-## Einbindung in ein Modul
+## Was ein Modul enthält
 
-Voraussetzungen im Modul-Repository: Git-Submodule `.style` (`https://github.com/symcon/StylePHP`) und `tests/stubs` (`https://github.com/symcon/SymconStubs`).
+Nur das:
 
-1. **CI:** `templates/module-workflow.yml` nach `.github/workflows/check.yml` kopieren. Der Aufruf zeigt auf `Schnittcher/Symcon_CI@v1`. Bei einem Fork den Account anpassen.
-2. **Lokal:** dieses Repository als Submodul `.ci` einbinden (`git submodule add <url> .ci`) und die Scripts aus `templates/composer.check.json` in die `composer.json` übernehmen. Danach `composer check`.
-3. **php-cs-fixer lokal:** `php-cs-fixer-v3.phar` (von `https://cs.symfony.com/download/php-cs-fixer-v3.phar`) ins Modul legen (nicht committen) oder über die Umgebungsvariable `PHP_CS_FIXER` auf eine vorhandene Installation zeigen.
+- `.style` als Git-Submodul von `https://github.com/symcon/StylePHP`
+- `tests/` mit den Tests, `bootstrap.php` (und optional `phpunit.xml`) und `tests/stubs` als Git-Submodul von `https://github.com/symcon/SymconStubs`
+- `.github/workflows/style.yml` und `.github/workflows/tests.yml`: je ein kurzer Aufruf des zentralen Workflows (Vorlagen `templates/module-style.yml` und `templates/module-tests.yml`, zeigen auf `Schnittcher/Symcon_CI@v1`)
+
+Keine `composer.json`, kein `vendor/` und kein Submodul von `Symcon_CI` im Modul.
+
+## Lokal ausführen
+
+Im Modulordner:
+
+```bash
+symcon-check
+```
+
+Der Wrapper `symcon-check.bat` liegt in `E:\IP-Symcon\Tools` und ruft `scripts/check.php` aus der Arbeitskopie dieses Repositories auf. PHP, php-cs-fixer und PHPUnit kommen ebenfalls aus `Tools` (`php\`, `php-cs-fixer-v3.phar`, `phpunit.phar`). Einrichtung: siehe das Regelwerk (`standards/SETUP.md`).
 
 ## Versionen
 
 - Module rufen den Workflow mit `@v1` auf. Der Tag `v1` wird bewusst auf neue, kompatible Stände weitergeschoben. Das Skript wird in der CI ebenfalls über `ci-ref` (Standard `v1`) geladen.
 - Inkompatible Änderungen erscheinen als `v2`. Module stellen dann bewusst um.
-- Lokal ist das Submodul `.ci` auf einen Commit gepinnt. Aktualisieren mit `git submodule update --remote .ci`.
+- Lokal läuft der ausgecheckte Stand dieses Repositories. Damit lokal und CI übereinstimmen, wird `v1` nur auf den Stand von `main` verschoben, den du lokal auch nutzt.
 
 ## Herkunft
 

@@ -1,0 +1,48 @@
+name: Symcon module tests
+
+# Wiederverwendbarer Workflow für PHP-Syntax und PHPUnit. Module rufen ihn mit einer Zeile auf
+# (siehe templates/module-tests.yml). Die Prüfung ist dieselbe wie lokal: scripts/check.php --only=tests.
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: PHP-Version
+        type: string
+        default: '8.5'
+      ci-ref:
+        description: Tag oder Branch dieses Repositories, aus dem scripts/check.php geladen wird
+        type: string
+        default: v1
+      strict:
+        description: Übersprungene Prüfungen (zum Beispiel fehlende Tests) als Fehler werten
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Modul auschecken (mit Submodulen, u. a. tests/stubs)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Zentrale Prüfskripte laden
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/Symcon_CI
+          ref: ${{ inputs.ci-ref }}
+          path: .ci
+
+      - name: PHP und PHPUnit einrichten
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          tools: phpunit
+
+      - name: Tests ausführen
+        run: php .ci/scripts/check.php --only=tests ${{ inputs.strict && '--strict' || '' }}
