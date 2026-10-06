@@ -20,7 +20,7 @@ Ausgeschlossen sind `.git`, `.style`, `.ci`, `vendor`, `node_modules` und `tests
 
 Voraussetzungen im Modul-Repository: Git-Submodule `.style` (`https://github.com/symcon/StylePHP`) und `tests/stubs` (`https://github.com/symcon/SymconStubs`).
 
-1. **CI:** `templates/module-workflow.yml` nach `.github/workflows/check.yml` kopieren und `<GITHUB-ACCOUNT>` ersetzen.
+1. **CI:** `templates/module-workflow.yml` nach `.github/workflows/check.yml` kopieren. Der Aufruf zeigt auf `Schnittcher/Symcon_CI@v1`. Bei einem Fork den Account anpassen.
 2. **Lokal:** dieses Repository als Submodul `.ci` einbinden (`git submodule add <url> .ci`) und die Scripts aus `templates/composer.check.json` in die `composer.json` übernehmen. Danach `composer check`.
 3. **php-cs-fixer lokal:** `php-cs-fixer-v3.phar` (von `https://cs.symfony.com/download/php-cs-fixer-v3.phar`) ins Modul legen (nicht committen) oder über die Umgebungsvariable `PHP_CS_FIXER` auf eine vorhandene Installation zeigen.
 
