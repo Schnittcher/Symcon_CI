@@ -1,0 +1,56 @@
+name: Symcon module check
+
+# Wiederverwendbarer Workflow. Module rufen ihn mit einer Zeile auf (siehe templates/module-workflow.yml).
+# Die Prüfung ist dieselbe wie lokal: scripts/check.php aus diesem Repository.
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: PHP-Version
+        type: string
+        default: '8.5'
+      ci-ref:
+        description: Tag oder Branch dieses Repositories, aus dem scripts/check.php geladen wird
+        type: string
+        default: v1
+      strict:
+        description: Übersprungene Prüfungen als Fehler werten
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Modul auschecken (mit Submodulen .style und tests/stubs)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Zentrale Prüfskripte laden
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/Symcon_CI
+          ref: ${{ inputs.ci-ref }}
+          path: .ci
+
+      - name: PHP einrichten
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          tools: composer
+
+      - name: Composer-Abhängigkeiten installieren
+        if: hashFiles('composer.json') != ''
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: php-cs-fixer v3 laden
+        run: |
+          wget -q https://cs.symfony.com/download/php-cs-fixer-v3.phar -O php-cs-fixer-v3.phar
+
+      - name: Prüfen
+        run: php .ci/scripts/check.php ${{ inputs.strict && '--strict' || '' }}
