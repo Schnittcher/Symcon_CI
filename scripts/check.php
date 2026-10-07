@@ -164,7 +164,7 @@ if ($runStyle) {
     $candidates = [
         is_string($fromEnv) ? $fromEnv : '',
         $root . '/php-cs-fixer-v3.phar',
-        // portable Werkzeugablage: <Tools>/php/php.exe neben <Tools>/php-cs-fixer-v3.phar
+        // lokale Umgebung (setup-env.ps1): <Root>/php/php.exe neben <Root>/php-cs-fixer-v3.phar
         dirname(PHP_BINARY, 2) . '/php-cs-fixer-v3.phar',
     ];
     foreach ($candidates as $candidate) {

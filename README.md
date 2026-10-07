@@ -34,7 +34,18 @@ Im Modulordner:
 symcon-check
 ```
 
-Der Wrapper `symcon-check.bat` liegt in `E:\IP-Symcon\Tools` und ruft `scripts/check.php` aus der Arbeitskopie dieses Repositories auf. PHP, php-cs-fixer und PHPUnit kommen ebenfalls aus `Tools` (`php\`, `php-cs-fixer-v3.phar`, `phpunit.phar`). Einrichtung: siehe das Regelwerk (`standards/SETUP.md`).
+Der Wrapper `symcon-check.bat` liegt in der lokalen Entwicklungsumgebung `C:\Symcon-Entwicklung` und ruft `scripts/check.php` aus der Arbeitskopie dieses Repositories auf. PHP, php-cs-fixer und PHPUnit liegen ebenfalls dort (`php\`, `php-cs-fixer-v3.phar`, `phpunit.phar`).
+
+## Entwicklungsumgebung anlegen
+
+`scripts/setup-env.ps1` prüft die Umgebung und legt Fehlendes an (PHP aus den offiziellen Quellen mit Prüfsumme, php-cs-fixer, PHPUnit, Composer, Wrapper, Benutzer-Pfad). Wiederholbar, mit `-Check` nur prüfen, mit `-Update` alles neu laden:
+
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\setup-env.ps1 -Check
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\setup-env.ps1
+```
+
+Einrichtung im Einzelnen: siehe das Regelwerk (`standards/SETUP.md`).
 
 ## Versionen
 
